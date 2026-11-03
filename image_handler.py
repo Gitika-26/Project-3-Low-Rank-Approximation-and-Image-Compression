@@ -16,8 +16,9 @@ for y in range(height):
 
 print("Original image shape:", A.shape)
 
-# 2. Ask the user for an integer rank r.
-r = int(input("Enter the rank r: "))
+# 2. Read r as text, then convert it to an integer.
+r = input()
+r = int(r)
 
 # 3. Use Gitika's SVD and low-rank reconstruction functions.
 A_approx = low_rank_approximation(A, r)
