@@ -16,8 +16,8 @@ for y in range(height):
 
 print("Original image shape:", A.shape)
 
-# 2. Choose a rank r for compression (keeping the top 20 singular values).
-r = 20
+# 2. Ask the user for an integer rank r.
+r = int(input("Enter the rank r: "))
 
 # 3. Use Gitika's SVD and low-rank reconstruction functions.
 A_approx = low_rank_approximation(A, r)
