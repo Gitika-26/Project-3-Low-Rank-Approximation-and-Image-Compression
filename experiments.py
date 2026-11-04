@@ -4,284 +4,233 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
-from src.image import load_image, compress_image, show_comparison
-from src.svd_approx import compute_svd
-from src.metrics import (
-    frobenius_error,
-    relative_error,
-    storage_original,
-    storage_svd,
-    compression_ratio)
+from image_handler import ImageHandler
+from src.metrics import Metrics
 
-# Create results folder
-os.makedirs("results", exist_ok=True)
 
-def experiment_rank_effect(image_path, ranks=(5, 20, 100), save_dir="results"):
+class Experiments:
+    """Conduct experiments for SVD image compression."""
 
-    A = load_image(image_path)
+    def __init__(self, image_paths, ranks=(5, 20, 100)):
+        self.image_paths = image_paths
+        self.ranks = ranks
+        self.metrics = Metrics()
 
-    reconstructions = []
-    valid_ranks = []
+        os.makedirs("results", exist_ok=True)
 
-    max_rank = min(A.shape)
+    def experiment_rank_effect(self, image_path):
 
-    for r in ranks:
+        image = ImageHandler(image_path)
+        original = image.load_image()
 
-        if r <= 0 or r > max_rank:
-            print(f"Skipping rank {r}")
-            continue
+        reconstructions = image.reconstruct_for_ranks(self.ranks)
 
-        A_approx = compress_image(A, r)
+        plt.figure(figsize=(4 * (len(self.ranks) + 1), 5))
 
-        reconstructions.append(A_approx)
-        valid_ranks.append(r)
+        plt.subplot(1, len(self.ranks) + 1, 1)
+        plt.imshow(original, cmap="gray", vmin=0, vmax=255)
+        plt.title("Original Image")
+        plt.axis("off")
 
-    if len(valid_ranks) == 0:
-        raise ValueError("No valid ranks available")
+        for i, rank in enumerate(self.ranks):
 
-    os.makedirs(save_dir, exist_ok=True)
+            reconstructed = np.clip(
+                reconstructions[rank], 0, 255
+            )
 
-    save_path = os.path.join(save_dir, "rank_comparison.png")
+            plt.subplot(1, len(self.ranks) + 1, i + 2)
+            plt.imshow(reconstructed, cmap="gray", vmin=0, vmax=255)
+            plt.title(f"Rank = {rank}")
+            plt.axis("off")
 
-    show_comparison(
-        A,
-        reconstructions,
-        valid_ranks,
-        save_path=save_path)
+        plt.tight_layout()
+        plt.savefig("results/rank_comparison.png", dpi=300)
+        plt.show()
+        plt.close()
 
-    print("Rank comparison saved:", save_path)
+    def experiment_error_storage(self, image_path):
 
-    return reconstructions
-    
-def experiment_error_storage(image_path, ranks, save_dir="results"):
-
-    A = load_image(image_path)
-
-    m, n = A.shape
-
-    results = []
-
-    for r in ranks:
-
-        if r <= 0 or r > min(m, n):
-            print(f"Skipping rank {r}")
-            continue
-
-        A_approx = compress_image(A, r)
-
-        error = frobenius_error(A, A_approx)
-        rel_error = relative_error(A, A_approx)
-
-        original = storage_original(m, n)
-        compressed = storage_svd(m, n, r)
-
-        ratio = compression_ratio(m, n, r)
-
-        results.append({
-            "Rank": r,
-            "Frobenius Error": error,
-            "Relative Error": rel_error,
-            "Original Storage": original,
-            "Compressed Storage": compressed,
-            "Compression Ratio": ratio})
-
-    if len(results) == 0:
-        raise ValueError("No valid ranks available")
-
-    df = pd.DataFrame(results)
-
-    os.makedirs(save_dir, exist_ok=True)
-
-    df.to_csv(
-        os.path.join(save_dir, "error_storage.csv"),
-        index=False)
-
-    print("\nError versus Storage Results:")
-    print(df.to_string(index=False))
-
-    plot_error_vs_storage(
-        results,
-        os.path.join(save_dir, "error_vs_storage.png"))
-
-    return df
-
-def experiment_singular_values(image_path, save_dir="results"):
-
-    A = load_image(image_path)
-
-    U, S, Vt = compute_svd(A)
-
-    energy = S ** 2
-
-    total_energy = np.sum(energy)
-
-    if total_energy == 0:
-        cumulative_energy = np.zeros(len(S))
-    else:
-        cumulative_energy = np.cumsum(energy) / total_energy
-
-    os.makedirs(save_dir, exist_ok=True)
-
-    # Plot singular values
-    plot_singular_values(
-        S,
-        os.path.join(save_dir, "singular_values.png"))
-
-    # Plot cumulative energy
-    plt.figure(figsize=(8, 5))
-
-    plt.plot(
-        np.arange(1, len(S) + 1),
-        cumulative_energy)
-
-    plt.xlabel("Number of Singular Values")
-    plt.ylabel("Cumulative Energy")
-    plt.title("Cumulative Energy Contribution")
-    plt.grid(True)
-
-    plt.tight_layout()
-
-    plt.savefig(
-        os.path.join(save_dir, "cumulative_energy.png"))
-
-    plt.show()
-
-    return S, cumulative_energy
-
-def experiment_second_image(image_paths, ranks, save_dir="results"):
-
-    all_results = []
-
-    for image_path in image_paths:
-
-        A = load_image(image_path)
+        image = ImageHandler(image_path)
+        A = image.load_image()
 
         m, n = A.shape
+        rows = []
 
-        reconstructions = []
-        valid_ranks = []
+        for rank in self.ranks:
 
-        for r in ranks:
+            A_r = image.reconstruct(rank)
 
-            if r <= 0 or r > min(m, n):
-                print(f"Skipping rank {r} for {image_path}")
-                continue
+            f_error = self.metrics.frobenius_error(A, A_r)
+            r_error = self.metrics.relative_error(A, A_r)
 
-            A_approx = compress_image(A, r)
+            original_storage = self.metrics.storage_original(m, n)
+            compressed_storage = self.metrics.storage_svd(m, n, rank)
 
-            error = frobenius_error(A, A_approx)
-            rel_error = relative_error(A, A_approx)
-            ratio = compression_ratio(m, n, r)
+            ratio = self.metrics.compression_ratio(m, n, rank)
 
-            all_results.append({
-                "Image": os.path.basename(image_path),
-                "Rank": r,
-                "Frobenius Error": error,
-                "Relative Error": rel_error,
+            rows.append({
+                "Rank": rank,
+                "Frobenius Error": f_error,
+                "Relative Error": r_error,
+                "Original Storage": original_storage,
+                "Compressed Storage": compressed_storage,
                 "Compression Ratio": ratio})
 
-            reconstructions.append(A_approx)
-            valid_ranks.append(r)
+        df = pd.DataFrame(rows)
 
-        if valid_ranks:
+        df.to_csv(
+            "results/error_storage_results.csv",
+            index=False)
 
-            filename = os.path.splitext(
-                os.path.basename(image_path))[0]
+        # Plot storage vs Frobenius error
+        plt.figure(figsize=(8, 5))
 
-            show_comparison(
-                A,
-                reconstructions,
-                valid_ranks,
-                save_path=os.path.join(
-                    save_dir,
-                    filename + "_comparison.png"))
+        plt.plot(
+            df["Compressed Storage"],
+            df["Frobenius Error"],
+            marker="o"
+        )
 
-    if len(all_results) == 0:
-        raise ValueError("No valid image and rank combinations")
+        plt.xlabel("Compressed Storage (number of values)")
+        plt.ylabel("Frobenius Error")
+        plt.title("Error vs Storage")
+        plt.grid(True)
 
-    df = pd.DataFrame(all_results)
+        plt.savefig("results/error_vs_storage.png", dpi=300)
+        plt.show()
+        plt.close()
 
-    os.makedirs(save_dir, exist_ok=True)
+        print("\nError vs Storage Results:")
+        print(df)
 
-    df.to_csv(
-        os.path.join(save_dir, "second_image_comparison.csv"),
-        index=False)
+    def experiment_singular_values(self, image_path):
 
-    print("\nComparison of Two Images:")
-    print(df.to_string(index=False))
+        image = ImageHandler(image_path)
 
-    return df
+        singular_values = image.get_singular_values()
 
-def plot_rank_comparison(original, reconstructions, ranks, save_path):
+       
+        energy = singular_values ** 2
 
-    show_comparison(
-        original,
-        reconstructions,
-        ranks,
-        save_path=save_path)
+       
+        cumulative_energy = (
+            np.cumsum(energy) / np.sum(energy)
+        )
 
-def plot_error_vs_storage(results, save_path):
+        plt.figure(figsize=(12, 5))
 
-    storage = [item["Compressed Storage"] for item in results]
-    errors = [item["Frobenius Error"] for item in results]
+        # Singular value decay
+        plt.subplot(1, 2, 1)
+        plt.plot(singular_values)
+        plt.xlabel("Singular Value Index")
+        plt.ylabel("Singular Value")
+        plt.title("Singular Value Decay")
+        plt.grid(True)
 
-    plt.figure(figsize=(8, 5))
+        # Cumulative energy
+        plt.subplot(1, 2, 2)
+        plt.plot(cumulative_energy)
+        plt.xlabel("Rank")
+        plt.ylabel("Cumulative Energy")
+        plt.title("Cumulative Energy vs Rank")
+        plt.grid(True)
 
-    plt.plot(storage, errors, marker="o")
+        plt.tight_layout()
 
-    plt.xlabel("Compressed Storage")
-    plt.ylabel("Frobenius Error")
-    plt.title("Error versus Storage")
+        plt.savefig("results/singular_values.png", dpi=300)
+        plt.show()
+        plt.close()
 
-    plt.grid(True)
-    plt.tight_layout()
+    def experiment_two_images(self):
 
-    plt.savefig(save_path)
-    plt.show()
+        rows = []
 
-def plot_singular_values(s, save_path):
+        for image_path in self.image_paths:
 
-    plt.figure(figsize=(8, 5))
+            image = ImageHandler(image_path)
+            A = image.load_image()
 
-    plt.plot(
-        np.arange(1, len(s) + 1),
-        s,
-        marker=".")
+            m, n = A.shape
 
-    plt.xlabel("Singular Value Index")
-    plt.ylabel("Singular Value")
-    plt.title("Singular Value Distribution")
+            reconstructions = image.reconstruct_for_ranks(
+                self.ranks
+            )
 
-    plt.grid(True)
-    plt.tight_layout()
+            # Plot original and reconstructions
+            plt.figure(
+                figsize=(4 * (len(self.ranks) + 1), 5)
+            )
 
-    plt.savefig(save_path)
-    plt.show()
-# image paths
-image1 = "test_image.jpg"
-image2 = "test_image_2.jpg"
+            plt.subplot(1, len(self.ranks) + 1, 1)
+            plt.imshow(A, cmap="gray", vmin=0, vmax=255)
+            plt.title("Original Image")
+            plt.axis("off")
+
+            for i, rank in enumerate(self.ranks):
+
+                A_r = reconstructions[rank]
+                A_r = np.clip(A_r, 0, 255)
+
+                plt.subplot(1, len(self.ranks) + 1, i + 2)
+                plt.imshow(A_r, cmap="gray", vmin=0, vmax=255)
+                plt.title(f"Rank = {rank}")
+                plt.axis("off")
+
+                rows.append({
+                    "Image": os.path.basename(image_path),
+                    "Rank": rank,
+                    "Frobenius Error":
+                        self.metrics.frobenius_error(A, A_r),
+                    "Relative Error":
+                        self.metrics.relative_error(A, A_r),
+                    "Compression Ratio":
+                        self.metrics.compression_ratio(m, n, rank)
+                })
+
+            plt.tight_layout()
+
+            filename = os.path.basename(image_path)
+            filename = os.path.splitext(filename)[0]
+
+            plt.savefig(
+                f"results/{filename}_comparison.png",
+                dpi=300
+            )
+
+            plt.show()
+            plt.close()
+
+        df = pd.DataFrame(rows)
+
+        df.to_csv(
+            "results/two_image_comparison.csv",
+            index=False
+        )
+
+        print("\nTwo Image Comparison Results:")
+        print(df)
+#Running the experiments
+
+image1 = "images/test_image.jpg"
+image2 = "images/test_image_2.jpg"
 
 ranks = (5, 20, 100)
 
+my_experiments = Experiments(
+    image_paths=[image1, image2],
+    ranks=ranks
+)
 
-print("\nEXPERIMENT 1: Rank Effect")
+print("Experiment 1: Rank Effect")
+my_experiments.experiment_rank_effect(image1)
 
-experiment_rank_effect(image1, ranks)
+print("Experiment 2: Error vs Storage")
+my_experiments.experiment_error_storage(image1)
 
+print("Experiment 3: Singular Values")
+my_experiments.experiment_singular_values(image1)
 
-print("\nEXPERIMENT 2: Error versus Storage")
+print("Experiment 4: Comparing Two Images")
+my_experiments.experiment_two_images()
 
-experiment_error_storage(image1, ranks)
-
-
-print("\nEXPERIMENT 3: Singular Values")
-
-experiment_singular_values(image1)
-
-
-print("\nEXPERIMENT 4: Comparison of Two Images")
-
-experiment_second_image(
-    [image1, image2],
-    ranks)
 print("\nALL EXPERIMENTS COMPLETED!")
