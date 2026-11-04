@@ -32,7 +32,10 @@ class SVD:
             raise ValueError(f"Rank r must be a positive integer. Got: {self.r}")
 
         if self.r > max_rank:
-            raise ValueError(f"The provided rank r ({self.r}) cannot exceed f"min({m}, {n}) = {max_rank}.")
+            raise ValueError(
+                f"The provided rank r ({self.r}) cannot exceed "
+                f"min({m}, {n}) = {max_rank}."
+            )
 
     def compute_svd(self):
     
