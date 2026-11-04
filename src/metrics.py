@@ -80,3 +80,40 @@ class Metrics:
         ratio = original / compressed
 
         return ratio
+if __name__ == "__main__":
+
+    from image_handler import ImageHandler
+
+    # Load original image
+    image = ImageHandler("images/test_image.jpg")
+    A = image.load_image()
+
+    print("Original Image Shape:", A.shape)
+
+    # Reconstruct image using Member 2's ImageHandler
+    rank = 20
+    A_r = image.reconstruct(rank)
+
+    # Initialize Metrics
+    metrics = Metrics()
+
+    # Error analysis
+    error = metrics.frobenius_error(A, A_r)
+    relative_error = metrics.relative_error(A, A_r)
+
+    # Storage analysis
+    m, n = A.shape
+    original_storage = metrics.storage_original(m, n)
+    compressed_storage = metrics.storage_svd(m, n, rank)
+    compression_ratio = metrics.compression_ratio(m, n, rank)
+
+    print("\n----- ERROR ANALYSIS -----")
+    print("Frobenius Error:", error)
+    print("Relative Error:", relative_error)
+
+    print("\n----- STORAGE ANALYSIS -----")
+    print("Original Storage:", original_storage)
+    print("Compressed Storage:", compressed_storage)
+    print("Compression Ratio:", compression_ratio)
+
+    
