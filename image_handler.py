@@ -1,4 +1,5 @@
 import numpy as np
+from pathlib import Path
 from PIL import Image
 import matplotlib.pyplot as plt
 
@@ -6,16 +7,17 @@ from svd_approx import SVD
 
 
 class ImageHandler:
-    """Load, reconstruct, and display grayscale images."""
+    """Load, reconstruct, save, and display grayscale images."""
 
     def __init__(self, image_path):
         self.image_path = image_path
         self.original_matrix = None
         self.reconstructed_matrix = None
+        self.reconstructed_image_path = None
         self.rank = None
 
     def load_image(self):
-        """Load the image and manually convert its RGB pixels to grayscale."""
+        """Load the image and manually convert RGB pixels to grayscale."""
         with Image.open(self.image_path) as image_file:
             image = image_file.convert("RGB")
             width, height = image.size
@@ -39,10 +41,25 @@ class ImageHandler:
         self.rank = int(rank)
         svd = SVD(self.original_matrix, self.rank)
         self.reconstructed_matrix = svd.low_rank_approximation()
+        self.save_reconstructed_image()
         return self.reconstructed_matrix
 
+    def save_reconstructed_image(self):
+        """Save the reconstruction beside the source image."""
+        if self.reconstructed_matrix is None:
+            raise ValueError("Call reconstruct(rank) before saving the image.")
+
+        pixels = np.clip(self.reconstructed_matrix, 0, 255).astype(np.uint8)
+        output_path = Path(self.image_path).with_name(
+            "reconstructed_image_rank_{}.png".format(self.rank)
+        )
+        Image.fromarray(pixels).save(output_path)
+        self.reconstructed_image_path = str(output_path)
+        print("Saved reconstructed image:", self.reconstructed_image_path)
+        return self.reconstructed_image_path
+
     def reconstruct_for_ranks(self, ranks):
-        """Return a dictionary of reconstructed images, one for each rank."""
+        """Return a dictionary of reconstructions, one for each rank."""
         reconstructions = {}
 
         for rank in ranks:
@@ -74,7 +91,7 @@ class ImageHandler:
         plt.subplot(1, 2, 2)
         reconstructed = np.clip(self.reconstructed_matrix, 0, 255)
         plt.imshow(reconstructed, cmap="gray", vmin=0, vmax=255)
-        plt.title(f"Reconstructed Image (rank = {self.rank})")
+        plt.title("Reconstructed Image (rank = {})".format(self.rank))
         plt.axis("off")
 
         plt.show()
