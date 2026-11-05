@@ -2,10 +2,10 @@
 
 A numerical implementation of **Singular Value Decomposition (SVD)** for constructing low-rank approximations of matrices and compressing images using truncated SVD. The project explores the relationship between matrix rank, singular values, reconstruction quality, and storage requirements.
 
-For an $\(m \times n\)$ matrix \(A\), the rank-\(r\) approximation retains only the \(r\) largest singular values and their corresponding singular vectors.
+For an $\(m \times n\)$ matrix \(A\), the rank- $\(r\)$ approximation retains only the $\(r\)$ largest singular values and their corresponding singular vectors.
 
-- **Original storage:** \(m \times n\) values.
-- **Low-rank SVD storage:** \(r(m+n+1)\) values.
+- **Original storage:** $\(m \times n\)$ values.
+- **Low-rank SVD storage:** $\(r(m+n+1)\)$ values.
 
 This demonstrates how SVD can reduce storage requirements while preserving the most significant information in a matrix.
 
