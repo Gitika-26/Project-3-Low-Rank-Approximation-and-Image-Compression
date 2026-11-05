@@ -5,7 +5,7 @@ A numerical implementation of **Singular Value Decomposition (SVD)** for constru
 For an $\(m \times n\)$ matrix A, the rank- $\(r\)$ approximation retains only the $\(r\)$ largest singular values and their corresponding singular vectors.
 
 - **Original storage:** $\(m \times n\)$ values.
-- **Low-rank SVD storage:** $\(r(m+n+1)\)$ values.
+- **Low-rank SVD storage:** $\(r \times (m+n+1)\)$ values.
 
 This demonstrates how SVD can reduce storage requirements while preserving the most significant information in a matrix.
 
