@@ -1,16 +1,13 @@
 # Project 3: Low-Rank Approximation and Image Compression
 
-MA5105 - Scientific Computing Lab Project
-
 A numerical implementation that uses the singular value decomposition (SVD) to build low-rank approximations of matrices and to compress images with truncated SVD. It connects the idea of rank and singular values to measurable reconstruction quality and storage cost.
 
-For an `m x n` matrix `A` with SVD `A = U S Vt`, the rank-`r` approximation keeps only the `r` largest singular values and their singular vectors:
+For an **m x n** matrix A with SVD A = U S Vt, the rank-r approximation keeps only the r largest singular values and their singular vectors:
 
-```
-A_r = U[:, :r] @ diag(S[:r]) @ Vt[:r, :]
-```
+**A_r = U[:, :r] @ diag(S[:r]) @ Vt[:r, :]**
 
-Storing the original needs `m*n` values, while the rank-`r` factors need about `r*(m + n + 1)` values.
+
+Storing the original needs **m x n** values, while the rank- **r** factors need about **r x (m + n + 1)** values.
 
 ## Team
 
@@ -80,11 +77,7 @@ python metrics.py
 python experiments.py
 ```
 
-The experiments call `plt.show()`, so each plot window must be closed before the next experiment starts. To run without opening windows (for example on a server), use:
-
-```bash
-MPLBACKEND=Agg python experiments.py       # Windows PowerShell: $env:MPLBACKEND="Agg"; python experiments.py
-```
+The experiments call `plt.show()`, so each plot window must be closed before the next experiment starts. 
 
 ## Description of the functions
 
