@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 from image_handler import ImageHandler
-from src.metrics import Metrics
+from metrics import Metrics
 
 
 class Experiments:
