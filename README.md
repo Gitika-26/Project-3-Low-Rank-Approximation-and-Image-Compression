@@ -102,8 +102,8 @@ The experiments call `plt.show()`, so each plot window must be closed before the
 
 | Method | Description |
 |--------|-------------|
-| `frobenius_error(A, A_r)` | Returns `||A - A_r||_F`. Checks that both inputs are non-empty 2-D matrices of the same shape. |
-| `relative_error(A, A_r)` | Returns `||A - A_r||_F / ||A||_F`. |
+| `frobenius_error(A, A_r)` | Returns ||A - A_r||_F. Checks that both inputs are non-empty 2-D matrices of the same shape. |
+| `relative_error(A, A_r)` | Returns ||A - A_r||_F / ||A||_F. |
 | `storage_original(m, n)` | Returns `m*n`. |
 | `storage_svd(m, n, r)` | Returns `r*(m + n + 1)`. Rejects invalid ranks. |
 | `compression_ratio(m, n, r)` | Returns `storage_original / storage_svd`. |
