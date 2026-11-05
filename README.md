@@ -2,10 +2,7 @@
 
 A numerical implementation that uses the singular value decomposition (SVD) to build low-rank approximations of matrices and to compress images with truncated SVD. It connects the idea of rank and singular values to measurable reconstruction quality and storage cost.
 
-For an **m x n** matrix A with SVD A = U S Vt, the rank-r approximation keeps only the r largest singular values and their singular vectors:
-
-**A_r = U[:, :r] @ diag(S[:r]) @ Vt[:r, :]**
-
+For an **m x n** matrix A with SVD A = U S Vt, the rank-r approximation keeps only the r largest singular values and their singular vectors.
 
 Storing the original needs **m x n** values, while the rank- **r** factors need about **r x (m + n + 1)** values.
 
