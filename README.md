@@ -46,22 +46,6 @@ cd Project-3-Low-Rank-Approximation-and-Image-Compression
 
 ### 2. Create and activate a virtual environment (optional)
 
-```bash
-python -m venv venv
-```
-
-On Windows:
-
-```bash
-venv\Scripts\activate
-```
-
-On macOS/Linux:
-
-```bash
-source venv/bin/activate
-```
-
 ### 3. Install the required dependencies
 
 Install all project dependencies using the provided `requirements.txt` file:
