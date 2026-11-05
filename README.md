@@ -2,7 +2,7 @@
 
 A numerical implementation that uses the singular value decomposition (SVD) to build low-rank approximations of matrices and to compress images with truncated SVD. It connects the idea of rank and singular values to measurable reconstruction quality and storage cost.
 
-For an **m x n** matrix A with SVD A = U S Vt, the rank-r approximation keeps only the r largest singular values and their singular vectors.
+For an **m x n** matrix A with SVD decomposition, the rank-r approximation keeps only the r largest singular values and their singular vectors.
 
 Storing the original needs **m x n** values, while the rank- **r** factors need about **r x (m + n + 1)** values.
 
@@ -78,7 +78,7 @@ The experiments call `plt.show()`, so each plot window must be closed before the
 
 ## Description of the functions
 
-### `svd_approx.py` - class `SVD(matrix, r)`
+### `svd_approx.py` - class `SVD`
 
 | Method | Description |
 |--------|-------------|
@@ -87,7 +87,7 @@ The experiments call `plt.show()`, so each plot window must be closed before the
 | `truncate_svd()` | Keeps the leading `r` singular values and the matching columns of `U` and rows of `Vt`. |
 | `low_rank_approximation()` | Runs the two steps above and returns the rank-`r` matrix `A_r`. |
 
-### `image_handler.py` - class `ImageHandler(image_path)`
+### `image_handler.py` - class `ImageHandler`
 
 | Method | Description |
 |--------|-------------|
@@ -108,7 +108,7 @@ The experiments call `plt.show()`, so each plot window must be closed before the
 | `storage_svd(m, n, r)` | Returns `r*(m + n + 1)`. Rejects invalid ranks. |
 | `compression_ratio(m, n, r)` | Returns `storage_original / storage_svd`. |
 
-### `experiments.py` - class `Experiments(image_paths, ranks=(5, 20, 100))`
+### `experiments.py` - class `Experiments`
 
 | Method | Experiment | Output in `results/` |
 |--------|------------|----------------------|
