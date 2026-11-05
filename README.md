@@ -1,127 +1,161 @@
 # Project 3: Low-Rank Approximation and Image Compression
 
-A numerical implementation that uses the singular value decomposition (SVD) to build low-rank approximations of matrices and to compress images with truncated SVD. It connects the idea of rank and singular values to measurable reconstruction quality and storage cost.
+A numerical implementation of **Singular Value Decomposition (SVD)** for constructing low-rank approximations of matrices and compressing images using truncated SVD. The project explores the relationship between matrix rank, singular values, reconstruction quality, and storage requirements.
 
-For an **m x n** matrix A with SVD decomposition, the rank-r approximation keeps only the r largest singular values and their singular vectors.
+For an \(m \times n\) matrix \(A\), the rank-\(r\) approximation retains only the \(r\) largest singular values and their corresponding singular vectors.
 
-Storing the original needs **m x n** values, while the rank- **r** factors need about **r x (m + n + 1)** values.
+- **Original storage:** \(m \times n\) values.
+- **Low-rank SVD storage:** \(r(m+n+1)\) values.
+
+This demonstrates how SVD can reduce storage requirements while preserving the most significant information in a matrix.
 
 ## Team
 
 | Member | GitHub | Role |
 |--------|--------|------|
-| MA26M009 (Lead) | Gitika-26 | SVD approximation and repository maintenance |
-| MA26M010 | jeetu7014 | Image handling and reconstruction |
-| MA26M011 | ma26m011 | Error and storage analysis |
-| MA26M012 | msehgal77 | Experiments and visualisation |
+| MA26M009 (Lead) | [Gitika-26](https://github.com/Gitika-26) | SVD approximation and repository maintenance |
+| MA26M010 | [jeetu7014](https://github.com/jeetu7014) | Image handling and reconstruction |
+| MA26M011 | [ma26m011](https://github.com/ma26m011) | Error and storage analysis |
+| MA26M012 | [msehgal77](https://github.com/msehgal77) | Experiments and visualisation |
 
-## Repository structure
+## Repository Structure
 
-```
+```text
 .
-├── svd_approx.py      # SVD class: validation, SVD, truncation, rank-r approximation
-├── image_handler.py   # ImageHandler class: load, reconstruct, save, display images
-├── metrics.py         # Metrics class: error, storage and compression-ratio formulas
-├── experiments.py     # Experiments class + script that runs all four experiments
-├── images/            # Input images and saved reconstructions
-├── results/           # Generated plots and CSV tables
+├── svd_approx.py      # SVD class: validation, decomposition and approximation
+├── image_handler.py   # ImageHandler class: image loading and reconstruction
+├── metrics.py         # Metrics class: error and storage calculations
+├── experiments.py     # Experiments class and experiment execution
+├── requirements.txt   # Project dependencies
+├── images/            # Input images and reconstructed images
+├── results/           # Generated plots and CSV files
 └── README.md
 ```
 
-## Setup
+## Setup and Installation
 
-Requires Python 3.8 or newer.
+**Requirements:** Python 3.8 or newer.
 
-1. Clone the repository:
+### 1. Clone the repository
 
-   ```bash
-   git clone https://github.com/Gitika-26/Project-3-Low-Rank-Approximation-and-Image-Compression.git
-   cd Project-3-Low-Rank-Approximation-and-Image-Compression
-   ```
+```bash
+git clone https://github.com/Gitika-26/Project-3-Low-Rank-Approximation-and-Image-Compression.git
 
-2. (Optional) Create and activate a virtual environment:
+cd Project-3-Low-Rank-Approximation-and-Image-Compression
+```
 
-   ```bash
-   python -m venv venv
-   source venv/bin/activate        # Windows: venv\Scripts\activate
-   ```
+### 2. Create and activate a virtual environment (optional)
 
-3. Install the dependencies:
+```bash
+python -m venv venv
+```
 
-   ```bash
-   pip install numpy pillow matplotlib pandas
-   ```
+On Windows:
 
-## How to run
+```bash
+venv\Scripts\activate
+```
 
-Run all commands from the repository root, since the scripts use relative paths such as `images/test_image.jpg`.
+On macOS/Linux:
 
-**Reconstruct one image for a rank of your choice** (prompts for `r`, then shows the original next to the reconstruction):
+```bash
+source venv/bin/activate
+```
+
+### 3. Install the required dependencies
+
+Install all project dependencies using the provided `requirements.txt` file:
+
+```bash
+pip install -r requirements.txt
+```
+
+**Note:** Make sure to install the requirements before running any of the project scripts.
+
+## How to Run
+
+Run all commands from the repository root directory, as the scripts use relative paths such as `images/test_image.jpg`.
+
+### 1. Image Reconstruction
+
+Reconstruct an image using a user-specified rank. The program prompts for the rank and displays the original image alongside its reconstruction.
 
 ```bash
 python image_handler.py
 ```
 
-**Print error and storage figures for one rank** (rank 20 on `images/test_image.jpg`):
+### 2. Error and Storage Analysis
+
+Calculate and display reconstruction error and storage requirements for rank 20 on `images/test_image.jpg`.
 
 ```bash
 python metrics.py
 ```
 
-**Run all four experiments** (reproduces everything in `results/`):
+### 3. Run All Experiments
+
+Execute all four experiments and generate the corresponding plots and CSV files in the `results/` directory.
 
 ```bash
 python experiments.py
 ```
 
-The experiments call `plt.show()`, so each plot window must be closed before the next experiment starts. 
+**Note:** The experiments use `plt.show()` to display plots. Close each plot window to proceed to the next experiment.
 
-## Description of the functions
+## Description of the Implementation
 
-### `svd_approx.py` - class `SVD`
+### 1. `svd_approx.py` — Class `SVD`
 
-| Method | Description |
-|--------|-------------|
-| `validate_rank_and_dimensions()` | Called on construction. Raises an error if the input is not 2-D, not numeric, contains NaN/inf, or if `r` is not a positive integer or exceeds `min(m, n)`. |
-| `compute_svd()` | Computes the thin SVD with `numpy.linalg.svd` and returns `U, S, Vt`. |
-| `truncate_svd()` | Keeps the leading `r` singular values and the matching columns of `U` and rows of `Vt`. |
-| `low_rank_approximation()` | Runs the two steps above and returns the rank-`r` matrix `A_r`. |
-
-### `image_handler.py` - class `ImageHandler`
+Implements Singular Value Decomposition and low-rank matrix approximation.
 
 | Method | Description |
 |--------|-------------|
-| `load_image()` | Opens the image, converts RGB to grayscale with `0.299 R + 0.587 G + 0.114 B`, and returns it as a float matrix of shape `(height, width)`. |
-| `reconstruct(rank)` | Builds the rank-`r` reconstruction using the `SVD` class, saves it as `reconstructed_image_rank_<r>.png` next to the source image, and returns the matrix. |
-| `reconstruct_for_ranks(ranks)` | Calls `reconstruct` for each rank and returns a `{rank: matrix}` dictionary. |
-| `get_singular_values()` | Returns all singular values of the image matrix, for decay plots. |
-| `save_reconstructed_image()` | Clips values to `[0, 255]` and writes the reconstruction as a PNG. |
-| `display()` | Shows the original and the reconstruction side by side. |
+| `validate_rank_and_dimensions()` | Validates matrix dimensions, numerical values, NaN/inf values, and the requested rank. Raises appropriate errors for invalid inputs. |
+| `compute_svd()` | Computes the thin SVD using `numpy.linalg.svd` and returns \(U\), \(S\), and \(V^T\). |
+| `truncate_svd()` | Retains the first \(r\) singular values and their corresponding singular vectors. |
+| `low_rank_approximation()` | Performs SVD and truncation to construct and return the rank-\(r\) approximation \(A_r\). |
 
-### `metrics.py` - class `Metrics`
+### 2. `image_handler.py` — Class `ImageHandler`
+
+Handles image loading, grayscale conversion, reconstruction, saving, and visualisation.
 
 | Method | Description |
 |--------|-------------|
-| `frobenius_error(A, A_r)` | Returns ||A - A_r||_F. Checks that both inputs are non-empty 2-D matrices of the same shape. |
-| `relative_error(A, A_r)` | Returns ||A - A_r||_F / ||A||_F. |
-| `storage_original(m, n)` | Returns `m*n`. |
-| `storage_svd(m, n, r)` | Returns `r*(m + n + 1)`. Rejects invalid ranks. |
-| `compression_ratio(m, n, r)` | Returns `storage_original / storage_svd`. |
+| `load_image()` | Loads an image, converts it to grayscale using \(0.299R + 0.587G + 0.114B\), and returns a floating-point matrix of shape `(height, width)`. |
+| `reconstruct(rank)` | Constructs the rank-\(r\) image approximation using the `SVD` class, saves the reconstructed image, and returns the reconstructed matrix. |
+| `reconstruct_for_ranks(ranks)` | Reconstructs the image for multiple ranks and returns a dictionary containing the corresponding matrices. |
+| `get_singular_values()` | Computes and returns the singular values of the image matrix. |
+| `save_reconstructed_image()` | Clips pixel values to the range `[0, 255]` and saves the reconstruction as a PNG image. |
+| `display()` | Displays the original image and its reconstruction side by side. |
 
-### `experiments.py` - class `Experiments`
+### 3. `metrics.py` — Class `Metrics`
+
+Provides functions to evaluate reconstruction quality and storage efficiency.
+
+| Method | Description |
+|--------|-------------|
+| `frobenius_error(A, A_r)` | Calculates the Frobenius norm of the reconstruction error, \(\|A-A_r\|_F\). Validates that both matrices have compatible dimensions. |
+| `relative_error(A, A_r)` | Calculates the relative reconstruction error, \(\frac{\|A-A_r\|_F}{\|A\|_F}\). |
+| `storage_original(m, n)` | Calculates the storage required for the original matrix: \(mn\). |
+| `storage_svd(m, n, r)` | Calculates the storage required for the truncated SVD representation: \(r(m+n+1)\). |
+| `compression_ratio(m, n, r)` | Calculates the compression ratio by dividing original storage by SVD storage. |
+
+### 4. `experiments.py` — Class `Experiments`
+
+Runs four experiments to investigate the effect of rank on image reconstruction, error, and compression.
 
 | Method | Experiment | Output in `results/` |
 |--------|------------|----------------------|
-| `experiment_rank_effect(image_path)` | 1. Effect of rank: original and reconstructions side by side | `rank_comparison.png` |
-| `experiment_error_storage(image_path)` | 2. Error versus storage for each rank | `error_storage_results.csv`, `error_vs_storage.png` |
-| `experiment_singular_values(image_path)` | 3. Singular-value decay and cumulative energy | `singular_values.png` |
-| `experiment_two_images()` | 4. The same analysis on both images | `test_image_comparison.png`, `test_image_2_comparison.png`, `two_image_comparison.csv` |
+| `experiment_rank_effect(image_path)` | **Experiment 1:** Compares the original image with reconstructions at different ranks. | `rank_comparison.png` |
+| `experiment_error_storage(image_path)` | **Experiment 2:** Examines the relationship between reconstruction error and storage requirements for different ranks. | `error_storage_results.csv`, `error_vs_storage.png` |
+| `experiment_singular_values(image_path)` | **Experiment 3:** Studies singular-value decay and cumulative energy. | `singular_values.png` |
+| `experiment_two_images()` | **Experiment 4:** Performs the same reconstruction and analysis on two different images. | `test_image_comparison.png`, `test_image_2_comparison.png`, `two_image_comparison.csv` |
 
-## Results summary
+## Results and Analysis
 
-Ranks 5, 20 and 100 were used on both images (grayscale). Values come from `results/two_image_comparison.csv`.
+The experiments were performed on two grayscale images using ranks 5, 20, and 100. The following values are obtained from `results/two_image_comparison.csv`.
 
-| Image | Rank | Frobenius error | Relative error | Compression ratio |
+| Image | Rank | Frobenius Error | Relative Error | Compression Ratio |
 |-------|------|-----------------|----------------|-------------------|
 | test_image.jpg | 5 | 45945.79 | 0.2714 | 119.5 |
 | test_image.jpg | 20 | 37365.05 | 0.2207 | 29.9 |
@@ -130,4 +164,22 @@ Ranks 5, 20 and 100 were used on both images (grayscale). Values come from `resu
 | test_image_2.jpg | 20 | 23915.96 | 0.0463 | 85.4 |
 | test_image_2.jpg | 100 | 8662.47 | 0.0168 | 17.1 |
 
-Higher rank lowers the error but raises the storage cost. The second image compresses much better, because its singular values decay faster, so a few components capture most of its content.
+### Observations
+
+1. **Effect of rank:** Increasing the approximation rank reduces reconstruction error because more singular values and their corresponding components are retained.
+
+2. **Storage requirements:** Increasing the rank also increases the amount of storage required. Therefore, there is a trade-off between reconstruction quality and compression.
+
+3. **Comparison between images:** The second image achieves considerably lower relative reconstruction error and higher compression ratios at the same ranks.
+
+4. **Singular-value decay:** The second image's singular values decay more rapidly. Consequently, a smaller number of singular components captures a larger proportion of its information, making it more suitable for low-rank compression.
+
+### Conclusion
+
+The experiments demonstrate that Singular Value Decomposition provides an effective method for low-rank matrix approximation and image compression. By retaining only the most significant singular values, substantial storage reduction can be achieved while preserving important image information.
+
+However, the effectiveness of compression depends on the image itself and the rate at which its singular values decay. Selecting an appropriate rank is therefore essential to balancing reconstruction quality and storage efficiency.
+
+---
+
+**Technologies Used:** Python, NumPy, Pillow, Matplotlib, Pandas.
