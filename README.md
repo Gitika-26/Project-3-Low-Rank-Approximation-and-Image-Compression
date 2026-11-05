@@ -30,6 +30,7 @@ This demonstrates how SVD can reduce storage requirements while preserving the m
 ├── images/            # Input images and reconstructed images
 ├── results/           # Generated plots and CSV files
 └── README.md
+└── Project_Report.pdf # Short project report
 ```
 
 ## Setup and Installation
