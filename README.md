@@ -120,8 +120,8 @@ Provides functions to evaluate reconstruction quality and storage efficiency.
 |--------|-------------|
 | `frobenius_error(A, A_r)` | Calculates the Frobenius norm of the reconstruction error, $\|A-A_r\|_F$. Validates that both matrices have compatible dimensions. |
 | `relative_error(A, A_r)` | Calculates the relative reconstruction error, $\frac{\|A-A_r\|_F}{\|A\|_F}$. |
-| `storage_original(m, n)` | Calculates the storage required for the original matrix: \(mn\). |
-| `storage_svd(m, n, r)` | Calculates the storage required for the truncated SVD representation: \(r(m+n+1)\). |
+| `storage_original(m, n)` | Calculates the storage required for the original matrix: $\(m times n\)$. |
+| `storage_svd(m, n, r)` | Calculates the storage required for the truncated SVD representation: $\(r times (m+n+1)\)$. |
 | `compression_ratio(m, n, r)` | Calculates the compression ratio by dividing original storage by SVD storage. |
 
 ### 4. `experiments.py` — Class `Experiments`
